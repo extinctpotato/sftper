@@ -104,10 +104,10 @@ class Line(object):
             if match:
                 self.dict.update((attr, match.group(attr)) for attr in self.attrs)
 
-        if not match:
-            self.dict.update((attr, None) for attr in self.attrs)
+        #if not match:
+        #    self.dict.update((attr, None) for attr in self.attrs)
 
-        self.dict["raw"] = raw
+                self.dict["raw"] = raw
 
     def get_raw(self):
         if self.has_filesystem():
@@ -129,7 +129,7 @@ class Fstab(object):
     def __init__(self):
         self.lines = []
     
-    def read(self, filespec):
+    def read(self, filespec="/etc/fstab"):
         """Read in a new file.
         
         If filespec is a string, it is used as a filename. Otherwise
@@ -142,6 +142,8 @@ class Fstab(object):
         f = open(filespec, "r")
         lines = []
         for line in f:
-            lines.append(Line(line))
+            to_add = Line(line)
+            if to_add.dict:
+                lines.append(to_add)
         self.lines = lines
         f.close()
