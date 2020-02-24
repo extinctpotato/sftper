@@ -23,7 +23,6 @@ class RightClickMenu(QtWidgets.QMenu):
 
     def onTriggered(self, checked, mdir):
         print(mdir)
-        QtWidgets.QSystemTrayIcon.showMessage("test",mdir)
 
 class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
     def __init__(self, parent=None):
