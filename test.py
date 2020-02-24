@@ -8,6 +8,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 class RightClickMenu(QtWidgets.QMenu):
     def __init__(self, parent=None):
         QtWidgets.QMenu.__init__(self, "Test", parent)
+        icon = QtGui.QIcon.fromTheme("drive-removable-media")
 
         f = Fstab()
         f.read()
@@ -17,6 +18,7 @@ class RightClickMenu(QtWidgets.QMenu):
                 mdir = line.dict['directory']
                 item = QtWidgets.QAction("{}".format(mdir), self)
                 item.triggered.connect(lambda checked, a=mdir: self.onTriggered(checked,a))
+                item.setIcon(icon)
                 self.addAction(item)
 
     def onTriggered(self, checked, mdir):
