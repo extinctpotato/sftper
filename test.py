@@ -7,8 +7,9 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 
 class RightClickMenu(QtWidgets.QMenu):
     def __init__(self, parent=None):
-        QtWidgets.QMenu.__init__(self, "Test", parent)
+        QtWidgets.QMenu.__init__(self, "Test", parent=None)
         icon = QtGui.QIcon.fromTheme("drive-removable-media")
+        self.parent = parent
 
         f = Fstab()
         f.read()
@@ -23,6 +24,7 @@ class RightClickMenu(QtWidgets.QMenu):
 
     def onTriggered(self, checked, mdir):
         print(mdir)
+        self.parent.showMessage("Calling the parent!", mdir)
 
 class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
     def __init__(self, parent=None):
@@ -31,7 +33,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         #self.right_menu = RightClickMenu()
         #self.setContextMenu(self.right_menu)
 
-        self.right_menu = RightClickMenu()
+        self.right_menu = RightClickMenu(parent=self)
         self.setContextMenu(self.right_menu)
 
         #self.activated.connect(self.click_trap)
