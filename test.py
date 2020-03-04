@@ -4,6 +4,8 @@ import sys, signal
 from fstab import Fstab
 from time import sleep
 from PyQt5 import QtWidgets, QtGui, QtCore
+from pathlib import Path
+import subprocess
 
 class RightClickMenu(QtWidgets.QMenu):
     def __init__(self, parent=None):
@@ -23,8 +25,24 @@ class RightClickMenu(QtWidgets.QMenu):
                 self.addAction(item)
 
     def onTriggered(self, checked, mdir):
-        print(mdir)
-        self.parent.showMessage("Calling the parent!", mdir)
+
+        p = Path(mdir)
+
+        if p.is_mount():
+            cmd = "umount"
+        else:
+            cmd = "mount"
+
+        self.parent.showMessage("Attempting to {}...".format(cmd), mdir)
+
+        try:
+            m = subprocess.check_call([cmd, mdir])
+        except subprocess.CalledProcessError as CPE:
+            self.parent.showMessage("Error!", CPE.cmd)
+
+        self.parent.showMessage("Command finished.", 
+                "Operation {} on {} finished with {}".format(cmd, mdir, m))
+
 
 class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
     def __init__(self, parent=None):
