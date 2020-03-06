@@ -7,7 +7,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 from pathlib import Path
 import subprocess
 
-def home_to_tilda(path):
+def home_to_tilde(path):
     return path.replace(str(Path.home()), "~")
 
 class RightClickMenu(QtWidgets.QMenu):
@@ -22,7 +22,7 @@ class RightClickMenu(QtWidgets.QMenu):
         for line in f.lines:
             if line.dict['fstype'] == 'fuse.sshfs':
                 mdir = line.dict['directory']
-                item = QtWidgets.QMenu("{}".format(home_to_tilda(mdir)), self)
+                item = QtWidgets.QMenu("{}".format(home_to_tilde(mdir)), self)
                 m = QtWidgets.QAction("Mount", self)
                 m.triggered.connect(lambda checked, a=mdir: self.mount(checked,a))
                 o = QtWidgets.QAction("Open in file manager", self)
