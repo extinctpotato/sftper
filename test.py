@@ -50,7 +50,7 @@ class RightClickMenu(QtWidgets.QMenu):
 
     def xdg_open(self, checked, mdir):
         cmd = "xdg-open"
-        subprocess.Popen([cmd, mdir])
+        subprocess.Popen([cmd, mdir], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
