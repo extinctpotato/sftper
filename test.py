@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys, signal
+import sys, signal, os
 from fstab import Fstab
 from time import sleep
 from PyQt5 import QtWidgets, QtGui, QtCore
@@ -13,8 +13,9 @@ def home_to_tilde(path):
 class RightClickMenu(QtWidgets.QMenu):
     def __init__(self, parent=None):
         QtWidgets.QMenu.__init__(self, "Test", parent=None)
-        icon = QtGui.QIcon.fromTheme("drive-removable-media")
         self.parent = parent
+
+        self.aboutToShow.connect(self.check_if_mount)
 
         f = Fstab()
         f.read()
@@ -22,15 +23,29 @@ class RightClickMenu(QtWidgets.QMenu):
         for line in f.lines:
             if line.dict['fstype'] == 'fuse.sshfs':
                 mdir = line.dict['directory']
-                item = QtWidgets.QMenu("{}".format(home_to_tilde(mdir)), self)
-                m = QtWidgets.QAction("Mount", self)
-                m.triggered.connect(lambda checked, a=mdir: self.mount(checked,a))
-                o = QtWidgets.QAction("Open in file manager", self)
-                o.triggered.connect(lambda checked, a=mdir: self.xdg_open(checked,a))
-                item.setIcon(icon)
-                item.addAction(m)
-                item.addAction(o)
-                self.addMenu(item)
+
+                fstab_entry = QtWidgets.QMenu("{}".format(home_to_tilde(mdir)), self)
+
+                mount_action = QtWidgets.QAction("Mount", self)
+                mount_action.triggered.connect(lambda checked, a=mdir: self.mount(checked,a))
+
+                open_action = QtWidgets.QAction("Open in file manager", self)
+                open_action.triggered.connect(lambda checked, a=mdir: self.xdg_open(checked,a))
+
+                fstab_entry.addAction(mount_action)
+                fstab_entry.addAction(open_action)
+
+                self.addMenu(fstab_entry)
+
+    def check_if_mount(self):
+        mount = QtGui.QIcon.fromTheme("network-transmit-receive-symbolic")
+        umount = QtGui.QIcon.fromTheme("network-idle-symbolic")
+
+        for action in self.actions():
+            if Path(os.path.expanduser(action.text())).is_mount():
+                action.setIcon(mount)
+            else:
+                action.setIcon(umount)
 
     def mount(self, checked, mdir):
 
@@ -58,19 +73,11 @@ class RightClickMenu(QtWidgets.QMenu):
 
 class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
     def __init__(self, parent=None):
-        icon = QtGui.QIcon.fromTheme("network-wired-acquiring")
+        icon = QtGui.QIcon.fromTheme("network-server")
         QtWidgets.QSystemTrayIcon.__init__(self, icon=icon, parent=parent)
-        #self.right_menu = RightClickMenu()
-        #self.setContextMenu(self.right_menu)
 
         self.right_menu = RightClickMenu(parent=self)
         self.setContextMenu(self.right_menu)
-
-        #self.activated.connect(self.click_trap)
-
-    def click_trap(self, value):
-        if value == self.Trigger:  # left click!
-            self.left_menu.exec_(QtGui.QCursor.pos())
 
     def welcome(self):
         self.showMessage("sftper", "Up and running!")
