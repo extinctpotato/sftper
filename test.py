@@ -19,12 +19,17 @@ class RightClickMenu(QtWidgets.QMenu):
         for line in f.lines:
             if line.dict['fstype'] == 'fuse.sshfs':
                 mdir = line.dict['directory']
-                item = QtWidgets.QAction("{}".format(mdir), self)
-                item.triggered.connect(lambda checked, a=mdir: self.onTriggered(checked,a))
+                item = QtWidgets.QMenu("{}".format(mdir), self)
+                m = QtWidgets.QAction("Mount", self)
+                m.triggered.connect(lambda checked, a=mdir: self.mount(checked,a))
+                o = QtWidgets.QAction("Open in file manager", self)
+                o.triggered.connect(lambda checked, a=mdir: self.xdg_open(checked,a))
                 item.setIcon(icon)
-                self.addAction(item)
+                item.addAction(m)
+                item.addAction(o)
+                self.addMenu(item)
 
-    def onTriggered(self, checked, mdir):
+    def mount(self, checked, mdir):
 
         p = Path(mdir)
 
@@ -42,6 +47,10 @@ class RightClickMenu(QtWidgets.QMenu):
 
         self.parent.showMessage("Command finished.", 
                 "Operation {} on {} finished with {}".format(cmd, mdir, m))
+
+    def xdg_open(self, checked, mdir):
+        cmd = "xdg-open"
+        subprocess.Popen([cmd, mdir])
 
 
 class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
