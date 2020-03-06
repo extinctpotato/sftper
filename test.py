@@ -23,18 +23,7 @@ class RightClickMenu(QtWidgets.QMenu):
         for line in f.lines:
             if line.dict['fstype'] == 'fuse.sshfs':
                 mdir = line.dict['directory']
-
                 fstab_entry = QtWidgets.QMenu("{}".format(home_to_tilde(mdir)), self)
-
-                mount_action = QtWidgets.QAction("Mount", self)
-                mount_action.triggered.connect(lambda checked, a=mdir: self.mount(checked,a))
-
-                open_action = QtWidgets.QAction("Open in file manager", self)
-                open_action.triggered.connect(lambda checked, a=mdir: self.xdg_open(checked,a))
-
-                fstab_entry.addAction(mount_action)
-                fstab_entry.addAction(open_action)
-
                 self.addMenu(fstab_entry)
 
     def check_if_mount(self):
@@ -42,10 +31,21 @@ class RightClickMenu(QtWidgets.QMenu):
         umount = QtGui.QIcon.fromTheme("network-idle-symbolic")
 
         for action in self.actions():
-            if Path(os.path.expanduser(action.text())).is_mount():
+            mdir = Path(os.path.expanduser(action.text()))
+            if mdir.is_mount():
                 action.setIcon(mount)
+                unmount_action = QtWidgets.QAction("Unmount", self)
+                unmount_action.triggered.connect(lambda checked, a=str(mdir): self.mount(checked,a))
+                action.menu().addAction(unmount_action)
             else:
                 action.setIcon(umount)
+                mount_action = QtWidgets.QAction("Mount", self)
+                mount_action.triggered.connect(lambda checked, a=str(mdir): self.mount(checked,a))
+                action.menu().addAction(mount_action)
+            
+            open_action = QtWidgets.QAction("Open in file manager", self)
+            open_action.triggered.connect(lambda checked, a=mdir: self.xdg_open(checked,a))
+            action.menu().addAction(open_action)
 
     def mount(self, checked, mdir):
 
