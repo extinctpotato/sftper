@@ -16,3 +16,7 @@ For this purpose, sftper provides optional arguments for managing [systemd user 
 Running `sftper --autostart` will result in copying the unit file to `$HOME/.config/systemd/user`, reloading the daemon, enabling the unit and starting it.
 
 Conversely, running `sftper --no-autostart` reverses the aforementioned process.
+
+## Demo
+
+![](demo.gif)
