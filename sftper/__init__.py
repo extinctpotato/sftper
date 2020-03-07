@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys, signal, os, threading, subprocess
+import sftper.autostart
 from sftper.fstab import Fstab
 from time import sleep
 from PyQt5 import QtWidgets, QtGui, QtCore
@@ -90,6 +91,14 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         QtCore.QTimer.singleShot(100, self.welcome)
 
 def main():
+    if len(sys.argv) > 1:
+        if sys.argv[1] == '--autostart':
+            autostart.start()
+            sys.exit(0)
+        elif sys.argv[1] == '--no-autostart':
+            autostart.stop()
+            sys.exit(0)
+
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app = QtWidgets.QApplication(sys.argv)
     tray = SystemTrayIcon()
