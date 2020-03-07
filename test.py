@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys, signal, os
+import sys, signal, os, threading
 from fstab import Fstab
 from time import sleep
 from PyQt5 import QtWidgets, QtGui, QtCore
@@ -49,23 +49,26 @@ class RightClickMenu(QtWidgets.QMenu):
                 action.menu().actions()[0].setText("Mount")
 
     def mount(self, checked, mdir):
+        def __mount(mdir):
+            p = Path(mdir)
 
-        p = Path(mdir)
+            if p.is_mount():
+                cmd = "umount"
+            else:
+                cmd = "mount"
 
-        if p.is_mount():
-            cmd = "umount"
-        else:
-            cmd = "mount"
+            self.parent.showMessage("Attempting to {}...".format(cmd), mdir)
 
-        self.parent.showMessage("Attempting to {}...".format(cmd), mdir)
+            try:
+                m = subprocess.check_call([cmd, mdir])
+            except subprocess.CalledProcessError as CPE:
+                self.parent.showMessage("Error!", CPE.cmd)
 
-        try:
-            m = subprocess.check_call([cmd, mdir])
-        except subprocess.CalledProcessError as CPE:
-            self.parent.showMessage("Error!", CPE.cmd)
+            self.parent.showMessage("Command finished.", 
+                    "Operation {} on {} finished with {}".format(cmd, mdir, m))
 
-        self.parent.showMessage("Command finished.", 
-                "Operation {} on {} finished with {}".format(cmd, mdir, m))
+        t = threading.Thread(target=__mount, args=(mdir,))
+        t.start()
 
     def xdg_open(self, checked, mdir):
         cmd = "xdg-open"
