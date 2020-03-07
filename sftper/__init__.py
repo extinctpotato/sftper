@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
-import sys, signal, os, threading
-from fstab import Fstab
+import sys, signal, os, threading, subprocess
+from sftper.fstab import Fstab
 from time import sleep
 from PyQt5 import QtWidgets, QtGui, QtCore
 from pathlib import Path
-import subprocess
 
 def home_to_tilde(path):
     return path.replace(str(Path.home()), "~")
@@ -90,9 +89,12 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         QtWidgets.QSystemTrayIcon.show(self)
         QtCore.QTimer.singleShot(100, self.welcome)
 
-if __name__ == "__main__":
+def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app = QtWidgets.QApplication(sys.argv)
     tray = SystemTrayIcon()
     tray.show()
     sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()
